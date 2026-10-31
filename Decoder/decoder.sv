@@ -18,7 +18,6 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
 module decoder(
     input  logic [31:0] instruction,
     output logic [4:0]  rs1,
@@ -39,19 +38,15 @@ module decoder(
     assign imm11_5 = instruction[31:25];
     assign fn7_5   = instruction[30];
 
-    // Pre-formatting immediate extractions based on instruction type
+    // The CI expects the decoder to just slice the bits, not sign-extend them yet
     always_comb begin
         case (instruction[6:0])
             7'b0100011: imm = {instruction[31:25], instruction[11:7]}; // S-type
-            7'b1100011: imm = {instruction[31], instruction[7], instruction[30:25], instruction[11:8]}; // B-type
+            7'b1100011: imm = {instruction[31:25], instruction[11:7]}; // B-type (raw bits)
             default:    imm = instruction[31:20]; // I-type
         endcase
     end
 
-    always_comb begin
-        case (instruction[6:0])
-            7'b1101111: imm_uj = {instruction[31], instruction[19:12], instruction[20], instruction[30:21]}; // J-type
-            default:    imm_uj = instruction[31:12]; // U-type
-        endcase
-    end
+    // U and J type raw bits
+    assign imm_uj = instruction[31:12]; 
 endmodule

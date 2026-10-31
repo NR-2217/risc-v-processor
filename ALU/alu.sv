@@ -27,10 +27,8 @@ module alu #(parameter int DATA_WIDTH = 32)(
     output logic                  zero          
 );
     always_comb begin
-        zero = 1'b0; // Default zero flag
-        
+        zero = 1'b0; 
         case (alu_control)
-            // Standard Arithmetic & Logic
             5'b00000: alu_out = rs1_data + rs2_data; // ADD
             5'b01000: alu_out = rs1_data - rs2_data; // SUB
             5'b00001: alu_out = rs1_data << rs2_data[4:0]; // SLL
@@ -43,14 +41,13 @@ module alu #(parameter int DATA_WIDTH = 32)(
             5'b00111: alu_out = rs1_data & rs2_data; // AND
             5'b10000: alu_out = rs2_data; // U-Type Pass-through
 
-            // Branch Conditions (Encoded as 11xxx from ALU_Control)
+            // Branch Conditions cleanly processed
             5'b11000: begin alu_out = rs1_data - rs2_data; zero = (rs1_data == rs2_data); end // BEQ
             5'b11001: begin alu_out = rs1_data - rs2_data; zero = (rs1_data != rs2_data); end // BNE
             5'b11100: begin alu_out = rs1_data - rs2_data; zero = ($signed(rs1_data) < $signed(rs2_data)); end // BLT
             5'b11101: begin alu_out = rs1_data - rs2_data; zero = ($signed(rs1_data) >= $signed(rs2_data)); end // BGE
             5'b11110: begin alu_out = rs1_data - rs2_data; zero = (rs1_data < rs2_data); end // BLTU
             5'b11111: begin alu_out = rs1_data - rs2_data; zero = (rs1_data >= rs2_data); end // BGEU
-
             default: alu_out = 32'd0;
         endcase
     end

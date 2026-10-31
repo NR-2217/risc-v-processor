@@ -31,9 +31,11 @@ module imm_generator(
             7'b0110111, 7'b0010111: // U-Type (LUI, AUIPC)
                 imm_output = {imm_input_uj, 12'd0};
             7'b1101111: // J-Type (JAL)
-                imm_output = {{11{imm_input_uj[19]}}, imm_input_uj, 1'b0};
+                // Shuffle the raw imm_uj bits into the J-Type format
+                imm_output = {{12{imm_input_uj[19]}}, imm_input_uj[7:0], imm_input_uj[8], imm_input_uj[18:9], 1'b0};
             7'b1100011: // B-Type (Branch)
-                imm_output = {{19{imm_input[11]}}, imm_input, 1'b0};
+                // Shuffle the raw imm bits into the B-Type format
+                imm_output = {{20{imm_input[11]}}, imm_input[0], imm_input[10:1], 1'b0};
             default: // I-Type, S-Type, JALR
                 imm_output = {{20{imm_input[11]}}, imm_input};
         endcase

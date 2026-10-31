@@ -32,19 +32,19 @@ module main_control (
     output logic [2:0] aluop        
 );
     always_comb begin
-        // Defaults to prevent latches
+        // Defaults
         aluop = 3'b000; memtoreg = 2'b00; branch = 1'b0; 
         memwrite = 1'b0; memread = 1'b0; alusrc = 1'b0; mux_inp = 1'b0; reg_write = 1'b0;
 
         case (opcode)
             7'b0110011: begin aluop = 3'b010; reg_write = 1'b1; end // R-Type
-            7'b0010011: begin aluop = 3'b100; alusrc = 1'b1; reg_write = 1'b1; end // I-Type
+            7'b0010011: begin aluop = 3'b011; alusrc = 1'b1; reg_write = 1'b1; end // I-Type
             7'b0000011: begin aluop = 3'b000; alusrc = 1'b1; memread = 1'b1; memtoreg = 2'b01; reg_write = 1'b1; end // Load
             7'b0100011: begin aluop = 3'b000; alusrc = 1'b1; memwrite = 1'b1; end // Store
             7'b1100011: begin aluop = 3'b001; branch = 1'b1; end // Branch
             7'b1101111: begin memtoreg = 2'b10; branch = 1'b1; reg_write = 1'b1; end // JAL
             7'b1100111: begin memtoreg = 2'b10; branch = 1'b1; alusrc = 1'b1; mux_inp = 1'b1; reg_write = 1'b1; end // JALR
-            7'b0110111, 7'b0010111: begin aluop = 3'b011; alusrc = 1'b1; reg_write = 1'b1; end // U-Type
+            7'b0110111, 7'b0010111: begin aluop = 3'b100; alusrc = 1'b1; reg_write = 1'b1; end // U-Type
         endcase
     end
 endmodule

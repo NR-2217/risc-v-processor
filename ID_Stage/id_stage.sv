@@ -18,13 +18,12 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
 module id_stage(
     input  logic        clk,
     input  logic        reset,
     input  logic        stall,
     input  logic [31:0] instruction,
-    input  logic [31:0] wb_data,        
+    input  logic [31:0] wb_data,
     output logic [31:0] rs1_data,
     output logic [31:0] rs2_data,
     output logic [31:0] imm_out,
@@ -43,12 +42,9 @@ module id_stage(
     logic [4:0] rs1, rs2, rd;
     logic [11:0] imm;
     logic [19:0] imm_uj;
-    logic reg_write, gated_reg_write;
-
-    // Blocks register write when stall is active, matching the PDF requirement
-    assign gated_reg_write = reg_write & ~stall;
-
-    decoder dec (
+    logic reg_write_ctrl;
+    
+    decoder dec_inst (
         .instruction(instruction),
         .rs1(rs1),
         .rs2(rs2),
@@ -61,7 +57,7 @@ module id_stage(
         .fn7_5(fn7_5)
     );
 
-    imm_generator imm_gen (
+    imm_generator imm_gen_inst (
         .imm_input(imm),
         .fn3(fn3_out_d),
         .opcode(opcode_out_d),
@@ -69,7 +65,7 @@ module id_stage(
         .imm_output(imm_out)
     );
 
-    main_control mc (
+    main_control mc_inst (
         .opcode(opcode_out_d),
         .fn3(fn3_out_d),
         .memtoreg(memtoreg),
@@ -78,11 +74,14 @@ module id_stage(
         .memread(mem_read),
         .memwrite(mem_write),
         .alusrc(alu_src),
-        .reg_write(reg_write),
+        .reg_write(reg_write_ctrl),
         .aluop(aluop)
     );
 
-    register_file rf (
+    logic gated_reg_write;
+    assign gated_reg_write = reg_write_ctrl && !stall;
+
+    register_file rf_inst (
         .rs1_sel(rs1),
         .rs2_sel(rs2),
         .reg_write(gated_reg_write),
